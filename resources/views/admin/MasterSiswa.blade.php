@@ -35,7 +35,7 @@
                                 <td>{{$item->email}}</td>
                                 <td>
                                     <a href="{{ route('mastersiswa.edit', $item->id) }}" class="btn btn-warning btn-circle btn-sm"><i class="fas fa-info-circle"></i></a>
-                                    <a href="{{ route('mastersiswa.show', $item->id) }}" class="btn btn-info btn-circle btn-sm"><i class="fas fa-exclamation-triangle"></i></a>
+                                    <a href="{{ route('mastersiswa.show', $item->id) }}" class="btn btn-info btn-circle btn-sm"><i class="fas fa-play"></i></a>
                                     <a href="{{ route('mastersiswa.hapus', $item->id) }}" class="btn btn-danger btn-circle btn-sm"><i class="fas fa-trash"></i></a>
                                 </td>
                             </tr>

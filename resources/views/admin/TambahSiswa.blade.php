@@ -2,6 +2,7 @@
 @section('title', 'Tambah Siswa')
 @section('content-title', 'Tambah Siswa')
 @section('konten')
+<a href="/mastersiswa"><button class="btn btn-success mb-3" type="submit">Kembali</button></a>
 <div class="row">
     <div class="col-lg-12">
         <div class="card shadow mb-4">

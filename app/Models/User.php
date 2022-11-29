@@ -33,12 +33,13 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $table = 'users';
     /**
      * The attributes that should be cast.
      *
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        'email_verified_at' => 'datetime'
     ];
 }

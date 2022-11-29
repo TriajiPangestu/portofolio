@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\siswa;
+use Illuminate\Support\Facades\Storage;
 use App\Models\project;
+use App\Models\siswa;
 
 class ProjectController extends Controller
 {
-    public function __constract() {
-        $this->middleware('Auth');
-    }
     /**
      * Display a listing of the resource.
      *
@@ -18,9 +16,9 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $project=project::all();
-        $data=siswa::all('id', 'nama');
-        return view('admin.MasterProject', compact('data'));
+        $siswas = siswa::all();
+        $projects = project::with('siswa')->get();
+        return view('admin.MasterProject', compact('projects', 'siswas'));
     }
 
     /**
@@ -31,8 +29,8 @@ class ProjectController extends Controller
     public function create()
     {
         $id_siswa = request()->query('siswa');
-        $siswa = siswa::all();
-        return view('admin.TambahProject', compact('siswa', 'id_siswa'));
+        $siswas = siswa::find($id_siswa);
+        return view('admin.TambahProject', compact('siswas'));
     }
 
     /**
@@ -43,17 +41,20 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-        $massage=[
-            'required' => ':attribute harus diisi dulu gaess',
-            'min' => ':attribute minimal :min karakter coy',
-            'max' => ':attribute maximal :max karakter gaess',
-        ];
-        $this->validate($request,[
-            'nama_project' => 'required|min:5|max:20',
-            'tanggal' => 'required',
-            'deskripsi' => 'required',
-            'foto' => 'required'
-        ], $massage);
+        $validatedData = $request->validate([
+            'id_siswa' => 'required',
+            'nama_project' => 'required|max:255',
+            'deskripsi' => 'required|max:255',
+            'foto' => 'image|mimes:jpg,png,jpeg,svg',
+            'tanggal' => 'required'
+        ],[
+            'nama_project.required' => 'Nama Project Wajib Diisi',
+            'nama_project.max' => 'Maksimal 255 Huruf',
+            'deskripsi.required' => 'Deskripsi Project Wajib Diisi',
+            'deskripsi.max' => 'Makimal 255 Huruf',
+            'foto.image' => 'Foto Harus Berupa Gambar',
+            'foto.mimes' => 'Format Yang Diperbolehkan jpg, png, jpeg, svg',
+        ]);
 
         // ambil info file yang diupload
         $file = $request->file('foto');
@@ -62,19 +63,16 @@ class ProjectController extends Controller
         // proses upload
         $tujuan_upload = './template/img';
         $file->move($tujuan_upload, $nama_file);
-
         // Proses insert database
         project::create([
             'id_siswa' => $request->id_siswa,
-            'nama_project' => $request->nama_projek,
-            'tanggal' => $request->tanggal,
-            'deskripsi' => $request->deskripsi,
-            'foto' => $nama_file             
+            'nama_project'=> $request->nama_project,
+            'deskripsi'=> $request->deskripsi,
+            'tanggal'=> $request->tanggal,
+            'foto' => $nama_file,            
         ]);
-
-        return redirect('/mastersiswa');
+        return redirect('/masterproject');
     }
-
     /**
      * Display the specified resource.
      *
@@ -83,8 +81,8 @@ class ProjectController extends Controller
      */
     public function show($id)
     {
-        $data = siswa::find($id)->project()->get(); 
-        return view('admin.ShowProject', compact('data'));
+        $projeks = siswa::find($id)->projeks;
+        return view('admin.ShowProject', compact('projeks'));
     }
 
     /**
@@ -95,8 +93,10 @@ class ProjectController extends Controller
      */
     public function edit($id)
     {
-        $data = siswa::all();
-        return view('admin.EditProject');
+        project::find($id);
+        $siswas = siswa::all();
+        $projects = project::where('id',$id)->firstorfail();
+        return view('admin.EditProject', compact('projects'), compact('siswas'));
     }
 
     /**
@@ -106,40 +106,62 @@ class ProjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, project $masterproject)
     {
-        $project = project::all();
-        $massage=[
-            'required' => ':attribute harus diisi dulu gaess',
-            'min' => ':attribute minimal :min karakter coy',
-            'max' => ':attribute maximal :max karakter gaess',
-        ];
-        $this->validate($request,[
+
+        $validatedData = $request->validate([
             'id_siswa' => 'required',
-            'nama_project' => 'required|min:5|max:20',
-            // 'tanggal' => 'required',
-            'deskripsi' => 'required',
-            'foto' => 'required'
-        ], $massage);
-
-        // ambil info file yang diupload
-        $file = $request->file('foto');
-        // rename + ambil nama file
-        $nama_file = time()."_".$file->getClientOriginalName();
-        // proses upload
-        $tujuan_upload = './template/img';
-        $file->move($tujuan_upload, $nama_file);
-
-        // Proses insert database
-        project::create([
-            'id_siswa' => $request->id_siswa,
-            'nama_project' => $request->nama_projek,
-            // 'tanggal' => $request->tanggal,
-            'deskripsi' => $request->deskripsi,
-            'foto' => $nama_file           
+            'nama_project' => 'required|max:255',
+            'deskripsi' => 'required|max:255',
+            'foto' => 'image|mimes:jpg,png,jpeg,svg',
+            'tanggal' => 'required',
+        ],[
+            'nama_project.required' => 'Nama Project Wajib Diisi',
+            'nama_project.max' => 'Maksimal 255 Huruf',
+            'deskripsi.required' => 'Deskripsi Project Wajib Diisi',
+            'deskripsi.max' => 'Makimal 255 Huruf',
+            'foto.image' => 'Foto Harus Berupa Gambar',
+            'foto.mimes' => 'Format Yang Diperbolehkan jpg, png, jpeg, svg',
         ]);
+    
+        if($request->foto !=''){
+            // Dengan ganti foto
 
-        return redirect('/mastersiswa');
+            //1. hapus foto lama
+            file::delete('./template/img/'.$projects->foto);
+
+            //2. ambil info file yang diupload
+            $file = $request->file('foto');
+
+            //3. rename + ambil nama file
+            $nama_file = time()."_".$file->getClientOriginalName();
+
+            //4. proses upload
+            $tujuan_upload = './template/img';
+            $file->move($tujuan_upload, $nama_file);
+
+            //5. Menyimpan ke database
+            $siswa->nisn = $request->nisn;
+            $siswa->nama = $request->nama;
+            $siswa->jk = $request->jk;
+            $siswa->email = $request->email;
+            $siswa->alamat = $request->alamat;
+            $siswa->about = $request->about;
+            $siswa->foto = $nama_file;
+            $siswa->save();
+            return redirect ('/masterproject')->with('success', 'Berhasil Mengubah Data');
+
+        } else {
+            // Tanpa ganti foto
+            $siswa->nisn = $request->nisn;
+            $siswa->nama = $request->nama;
+            $siswa->jk = $request->jk;
+            $siswa->email = $request->email;
+            $siswa->alamat = $request->alamat;
+            $siswa->about = $request->about;
+            $siswa->save();
+            return redirect ('/masterproject')->with('success', 'Berhasil Mengubah Data');
+        }
     }
 
     /**
@@ -150,6 +172,15 @@ class ProjectController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $projects = project::where('id', $id)->firstorfail();
+        if($request->foto !=''){
+            $old_foto = public_path('./template/img/' . $projects->foto);
+            if(file_exists($old_foto)) unlink($old_foto);
+        }
+
+        $projects=project::find($id)
+            ->delete();
+            
+        return redirect('/masterproject')->with('error', 'Berhasil Menghapus Data !');
     }
 }

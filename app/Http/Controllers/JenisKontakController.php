@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\jenis_kontak;
 use Illuminate\Http\Request;
-use App\Models\kontak;
-use App\Models\siswa;
 
-class KontakController extends Controller
+class JenisKontakController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,9 +14,8 @@ class KontakController extends Controller
      */
     public function index()
     {
-        $siswas = siswa::all();
-        $kontaks = kontak::with('siswa')->get();
-        return view('admin.MasterKontak', compact('kontaks', 'siswas'));
+        $item = jenis_kontak::all();
+        return view('admin.TambahJenisKontak', compact('item'));
     }
 
     /**
@@ -28,10 +25,7 @@ class KontakController extends Controller
      */
     public function create()
     {
-        $id_siswa = request()->query('siswa');
-        $siswas = siswa::find($id_siswa);
-        $kontaks = jenis_kontak::all();
-        return view('admin.TambahKontak', compact('siswas','kontaks'));
+        
     }
 
     /**
@@ -43,13 +37,14 @@ class KontakController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'id_siswa' => 'required',
-            'id_jenis' => 'required',
-            'deskripsi' => 'required|max:255'
+            'jenis_kontak' => 'required|max:255'
+        ],[
+            'jenis_kontak.required' => 'Jenis Kontak Wajib diisi',
+            'jenis_kontak.max' => 'Maksimal 255 Huruf'
         ]);
-        
-        kontak::create($validatedData);
-        return redirect('/masterkontak')->with('success', 'Berhasil Menambahkan Kontak');
+
+        jenis_kontak::create($validatedData);
+        return redirect('/jeniskontak')->with('success', 'Berhasil Menambah Jenis Kontak');
     }
 
     /**
@@ -60,8 +55,7 @@ class KontakController extends Controller
      */
     public function show($id)
     {
-        $kontaks = siswa::find($id)->kontak;
-        return view('admin.ShowKontak', compact('kontaks'));
+        //
     }
 
     /**
@@ -72,9 +66,7 @@ class KontakController extends Controller
      */
     public function edit($id)
     {
-        kontak::find($id);
-        $kontaks = kontak::where('id', $id)->firstorfail();
-        return view('admin.EditKontak', compact('kontaks'));
+        //
     }
 
     /**
@@ -86,14 +78,7 @@ class KontakController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validatedData = $request->validate([
-            'deskripsi' => 'required'
-        ]);
-
-        kontak::where('id', $id)
-        ->update($validatedData);
-
-        return redirect('/masterkontak')->with('success', 'Berhasil Mengubah Kontak');
+        //
     }
 
     /**
@@ -104,7 +89,8 @@ class KontakController extends Controller
      */
     public function destroy($id)
     {
-        kontak::find($id)->delete();
-        return redirect('/masterkontak')->with('success', 'Berhasil Menghapus Kontak');
+        jenis_kontak::find($id)->delete();
+        
+        return redirect('/jeniskontak')->with('success', 'Berhasil Menghapus Jenis Kontak');
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\KontakController;
+use App\Http\Controllers\JenisKontakController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,13 +21,23 @@ use Illuminate\Support\Facades\Route;
 
 //get
 Route::middleware('auth')->group(function() {
+
     Route::get('/', function () {return view('admin.app');});  
     Route::get('/admin', [DashboardController::class, 'index']);
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    //mastersiswa
     Route::get('mastersiswa/{id_siswa}/hapus',[SiswaController::class, 'hapus'])->name('mastersiswa.hapus');
     Route::resource('/mastersiswa', SiswaController::class);
+
+    //masterkontak
     Route::resource('/masterkontak', KontakController::class);
+    Route::resource('/jeniskontak', JenisKontakController::class);
+
+    //masterproject
     Route::resource('/masterproject', ProjectController::class);
+    Route::get('masterproject/show/{id_siswa}',[ProjectController::class, 'show'])->name('masterproject.show');
+
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
 
 //guest
