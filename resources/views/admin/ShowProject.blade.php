@@ -6,7 +6,7 @@
             <div class="card-body">
                 <div class="row justify-content-center align-items-center">
                     <div class="col-md-7">
-                        <img src="{{ asset('images/admin/'. $projek->foto) }}" class="rounded w-100" alt="Foto Projek">
+                        <img src="{{ asset('./template/img/'. $projek->foto) }}" class="rounded w-100" alt="Foto Projek">
                     </div>
                     <div class="col-md-5">
                         <h5 class="text-dark font-weight-bold">{{ $projek->nama_projek }}</h5>

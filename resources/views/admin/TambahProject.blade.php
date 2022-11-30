@@ -48,7 +48,7 @@
                         <div class="col-sm-5">
                             <img class="img-preview img-fluid w-80 mt-5">
                         </div>
-                        <input type="file" name="foto" class="custom-file-input" id="foto" onchange="previewImage()">
+                        <input type="file" name="foto" class="custom-file-input" id="foto" value="{{ old('foto')}}">
                     </div>
                 </div>
             </div>
@@ -71,7 +71,7 @@
 </div>
 
 
-<script>
+{{-- <script>
     function previewImage(){
         const image = document.querySelector("#foto");
         const imgPreview = document.querySelector('.img-preview');
@@ -85,6 +85,6 @@
             imgPreview.src = oFREvent.target.result;
         }
     }
-</script>
+</script> --}}
 
 @endsection
