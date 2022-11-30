@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function() {
 
     //masterproject
     Route::resource('/masterproject', ProjectController::class);
-    Route::get('masterproject/show/{id_siswa}',[ProjectController::class, 'show'])->name('masterproject.show');
+    Route::get('masterproject/show/{id}',[ProjectController::class, 'show'])->name('masterproject.show');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
@@ -45,10 +45,6 @@ Route::middleware('guest')->group(function() {
     Route::get('/login', [LoginController::class, 'index'])->name('login');
     Route::post('/login', [LoginController::class, 'authenticate']);
 });
-
-
-
-
 
 
 // Route::get('/dashboard', function () {

@@ -50,7 +50,7 @@
 
 <script>
     function show(id){
-        $.get('/masterproject/'+id, function(data){
+        $.get('/masterproject/show/'+id, function(data){
             $('#project').html(data);
         })
     }
